@@ -345,6 +345,58 @@
             <div class="container mx-auto px-4">
                 <h2 class="text-3xl font-bold text-center mb-12">龙狮周边商城</h2>
                 
+                <!-- 轮播图 -->
+                <div class="relative mb-12 rounded-xl overflow-hidden shadow-lg">
+                    <div class="carousel-container relative h-80 md:h-[900px]">
+                        <div class="carousel-slide absolute w-full h-full transition-opacity duration-500">
+                            <img src="./images/b1.png" alt="轮播图1" class="w-full h-full object-cover">
+                        </div>
+                        <div class="carousel-slide absolute w-full h-full transition-opacity duration-500 opacity-0">
+                            <img src="./images/b2.png" alt="轮播图2" class="w-full h-full object-cover">
+                        </div>
+                        <div class="carousel-slide absolute w-full h-full transition-opacity duration-500 opacity-0">
+                            <img src="./images/b3.png" alt="轮播图3" class="w-full h-full object-cover">
+                        </div>
+                        <div class="carousel-slide absolute w-full h-full transition-opacity duration-500 opacity-0">
+                            <img src="./images/b4.png" alt="轮播图4" class="w-full h-full object-cover">
+                        </div>
+                        <div class="carousel-slide absolute w-full h-full transition-opacity duration-500 opacity-0">
+                            <img src="./images/b5.png" alt="轮播图5" class="w-full h-full object-cover">
+                        </div>
+                        <div class="carousel-slide absolute w-full h-full transition-opacity duration-500 opacity-0">
+                            <img src="./images/b6.png" alt="轮播图6" class="w-full h-full object-cover">
+                        </div>
+                        <div class="carousel-slide absolute w-full h-full transition-opacity duration-500 opacity-0">
+                            <img src="./images/b7.png" alt="轮播图7" class="w-full h-full object-cover">
+                        </div>
+                        <div class="carousel-slide absolute w-full h-full transition-opacity duration-500 opacity-0">
+                            <img src="./images/b8.png" alt="轮播图8" class="w-full h-full object-cover">
+                        </div>
+                        <div class="carousel-slide absolute w-full h-full transition-opacity duration-500 opacity-0">
+                            <img src="./images/b9.png" alt="轮播图9" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                    
+                    <button class="carousel-prev absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all">
+                        <i class="fa fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-next absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all">
+                        <i class="fa fa-chevron-right"></i>
+                    </button>
+                    
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                        <button class="carousel-dot w-3 h-3 rounded-full bg-white" data-index="0"></button>
+                        <button class="carousel-dot w-3 h-3 rounded-full bg-white/50" data-index="1"></button>
+                        <button class="carousel-dot w-3 h-3 rounded-full bg-white/50" data-index="2"></button>
+                        <button class="carousel-dot w-3 h-3 rounded-full bg-white/50" data-index="3"></button>
+                        <button class="carousel-dot w-3 h-3 rounded-full bg-white/50" data-index="4"></button>
+                        <button class="carousel-dot w-3 h-3 rounded-full bg-white/50" data-index="5"></button>
+                        <button class="carousel-dot w-3 h-3 rounded-full bg-white/50" data-index="6"></button>
+                        <button class="carousel-dot w-3 h-3 rounded-full bg-white/50" data-index="7"></button>
+                        <button class="carousel-dot w-3 h-3 rounded-full bg-white/50" data-index="8"></button>
+                    </div>
+                </div>
+                
                 <!-- 筛选栏 -->
                 <div class="bg-white rounded-lg shadow-md p-4 mb-8">
                     <div class="flex flex-wrap gap-4 items-center">
@@ -985,6 +1037,63 @@
                     });
                 });
             }
+
+            // 轮播图
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.carousel-dot');
+            const totalSlides = slides.length;
+            let autoPlayInterval;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.style.opacity = i === index ? '1' : '0';
+                });
+                dots.forEach((dot, i) => {
+                    dot.style.backgroundColor = i === index ? 'white' : 'rgba(255, 255, 255, 0.5)';
+                });
+                currentSlide = index;
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                showSlide(currentSlide);
+            }
+
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                showSlide(currentSlide);
+            }
+
+            function startAutoPlay() {
+                autoPlayInterval = setInterval(nextSlide, 3000);
+            }
+
+            function stopAutoPlay() {
+                clearInterval(autoPlayInterval);
+            }
+
+            document.querySelector('.carousel-next').addEventListener('click', () => {
+                nextSlide();
+                stopAutoPlay();
+                startAutoPlay();
+            });
+
+            document.querySelector('.carousel-prev').addEventListener('click', () => {
+                prevSlide();
+                stopAutoPlay();
+                startAutoPlay();
+            });
+
+            dots.forEach(dot => {
+                dot.addEventListener('click', () => {
+                    showSlide(parseInt(dot.dataset.index));
+                    stopAutoPlay();
+                    startAutoPlay();
+                });
+            });
+
+            startAutoPlay();
 
             // 初始化文化传播数据图表
             const ctx = document.getElementById('cultureChart').getContext('2d');
