@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>匠心龙狮 - 非遗龙狮文化传承与周边商城</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            }
+            .btn-primary {
+                @apply bg-red-800 hover:bg-red-900 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300;
+            }
+            .btn-secondary {
+                @apply bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300;
+            }
+            .badge-hot {
+                @apply absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-md fixed w-full z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-3">
+                <!-- 品牌LOGO -->
+                <div class="flex items-center space-x-2">
+                    <img src="./images/logo.png" width="30" alt="">
+                    <span class="text-xl font-bold text-red-800">匠心龙狮</span>
+                </div>
+
+                <!-- 导航菜单 - 桌面端 -->
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home" class="text-gray-700 hover:text-red-800 font-medium">首页</a>
+                    <a href="#culture" class="text-gray-700 hover:text-red-800 font-medium">龙狮文化</a>
+                    <a href="#shop" class="text-gray-700 hover:text-red-800 font-medium">周边商城</a>
+                    <a href="#about" class="text-gray-700 hover:text-red-800 font-medium">关于我们</a>
+                    <a href="#contact" class="text-gray-700 hover:text-red-800 font-medium">联系合作</a>
+                </div>
+
+                <!-- 功能按钮 -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="cartBtn" class="text-gray-700 hover:text-red-800 relative">
+                            <i class="fa fa-shopping-cart text-xl"></i>
+                            <span id="cartCount" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                        </button>
+                    </div>
+                    <button class="md:hidden text-xl text-gray-700" id="mobileMenuBtn">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 移动端菜单 -->
+        <div id="mobileMenu" class="md:hidden hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#home" class="py-2 text-gray-700 hover:text-red-800 font-medium">首页</a>
+                <a href="#culture" class="py-2 text-gray-700 hover:text-red-800 font-medium">龙狮文化</a>
+                <a href="#shop" class="py-2 text-gray-700 hover:text-red-800 font-medium">周边商城</a>
+                <a href="#about" class="py-2 text-gray-700 hover:text-red-800 font-medium">关于我们</a>
+                <a href="#contact" class="py-2 text-gray-700 hover:text-red-800 font-medium">联系合作</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 购物车侧边栏 -->
+    <div id="cartSidebar" class="fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="text-xl font-bold">我的购物车</h3>
+            <button id="closeCartBtn" class="text-gray-500 hover:text-red-800">
+                <i class="fa fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <div id="cartItems" class="h-[calc(100vh-180px)] overflow-y-auto p-4">
+            <!-- 购物车为空状态 -->
+            <div id="emptyCart" class="flex flex-col items-center justify-center h-full text-gray-500">
+                <i class="fa fa-shopping-cart text-6xl mb-4"></i>
+                <p class="text-xl">购物车空空如也</p>
+                <p class="mt-2">快去挑选心仪的周边吧~</p>
+                <button class="btn-primary mt-6" onclick="closeCart()">去购物</button>
+            </div>
+
+            <!-- 购物车商品列表 (动态生成) -->
+            <div id="cartList" class="hidden space-y-4"></div>
+        </div>
+
+        <!-- 购物车结算栏 -->
+        <div class="absolute bottom-0 w-full border-t p-4 bg-gray-50">
+            <div class="flex justify-between mb-4">
+                <span class="font-medium text-lg">总计:</span>
+                <span id="cartTotal" class="font-bold text-xl text-red-800">¥0.00</span>
+            </div>
+            <button class="btn-primary w-full">
+                <i class="fa fa-credit-card mr-2"></i>立即结算
+            </button>
+        </div>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40" onclick="closeCart()"></div>
+
+    <!-- 英雄区域 -->
+    <header id="home" class="pt-20 bg-gradient-to-r from-red-900 to-red-700 text-white">
+        <div class="container mx-auto px-4 py-16 md:py-24">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="text-center md:text-left">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-shadow">
+                        匠心龙狮<br>非遗传承
+                    </h1>
+                    <p class="text-lg md:text-xl mb-8 max-w-xl mx-auto md:mx-0 text-white/90">
+                        以青春之力传承非遗，以创新之态焕发龙狮文化新活力，打造专属龙狮文化周边，让传统走进生活
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center md:justify-start">
+                        <a href="#shop" class="btn-secondary">
+                            <i class="fa fa-shopping-bag mr-2"></i>选购周边
+                        </a>
+                        <a href="#culture" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300">
+                            <i class="fa fa-book mr-2"></i>了解文化
+                        </a>
+                    </div>
+                </div>
+                <div class="relative">
+                    <img src="./images/1.jpg" alt="龙狮表演" class="rounded-lg shadow-2xl w-full h-auto object-cover">
+                    <div class="absolute -bottom-4 -left-4 bg-amber-500 text-white font-bold px-4 py-2 rounded-lg shadow-lg">
+                        国家级非物质文化遗产
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- 项目亮点 -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">项目核心亮点</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- 亮点1 -->
+                    <div class="bg-gray-50 rounded-xl p-6 card-hover">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa fa-trophy text-3xl text-red-800"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">专业赛事成果</h3>
+                        <p class="text-gray-600">斩获国家级赛事银奖，连续三年获得市级一等奖，专业能力备受认可</p>
+                    </div>
+                    <!-- 亮点2 -->
+                    <div class="bg-gray-50 rounded-xl p-6 card-hover">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa fa-handshake-o text-3xl text-red-800"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">社会服务融合</h3>
+                        <p class="text-gray-600">参与百场+市级、校级文化活动，将龙狮文化推广至校园与社会各界</p>
+                    </div>
+                    <!-- 亮点3 -->
+                    <div class="bg-gray-50 rounded-xl p-6 card-hover">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa fa-lightbulb-o text-3xl text-red-800"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">文化创新发展</h3>
+                        <p class="text-gray-600">打造龙狮文化IP，开发系列周边产品，让非遗文化融入现代生活</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 热门周边 -->
+        <section class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center mb-10">
+                    <h2 class="text-3xl font-bold">热门周边</h2>
+                    <a href="#shop" class="text-red-800 hover:text-red-900 font-medium">
+                        查看全部 <i class="fa fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- 商品1 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q1.png" alt="龙狮主题红色帆布袋" class="w-full h-60 object-cover">
+                            <span class="badge-hot">热销</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">龙狮主题红色帆布袋</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">5.0 (128评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥49.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="1" data-name="非遗龙狮手办礼盒" data-price="198" data-img="https://picsum.photos/id/1/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品2 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q2.png" alt="龙狮福气刺绣抱枕" class="w-full h-60 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">龙狮福气刺绣抱枕</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-half-o"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">4.5 (96评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥89.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="2" data-name="龙狮文化创意T恤" data-price="89" data-img="https://picsum.photos/id/2/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品3 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q3.png" alt="龙狮祥云金边咖啡杯碟套装" class="w-full h-60 object-cover">
+                            <span class="badge-hot">新品</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">龙狮祥云金边咖啡杯碟套装</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">5.0 (78评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥129.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="3" data-name="金属龙狮书签套装" data-price="69" data-img="https://picsum.photos/id/3/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品4 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q4.png" alt="龙狮玩偶与祥瑞纪念瓷盘礼组" class="w-full h-60 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">龙狮玩偶与祥瑞纪念瓷盘礼组</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-o"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">4.0 (65评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥199.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="4" data-name="手工龙狮定制灯笼" data-price="128" data-img="https://picsum.photos/id/4/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 龙狮文化介绍 -->
+        <section id="culture" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">龙狮文化 · 非遗传承</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4 text-red-800">龙狮文化的历史渊源</h3>
+                        <p class="text-lg mb-4 text-gray-700">
+                            龙狮运动起源于中国古代，已有两千多年历史，是中华民族优秀的传统体育项目和文化瑰宝。龙象征着吉祥、权威、尊贵，狮象征着勇猛、吉祥、繁荣，二者结合的龙狮表演成为节庆、庆典的重要组成部分。
+                        </p>
+                        <p class="text-lg mb-6 text-gray-700">
+                            2006年，龙狮运动被列入国家级非物质文化遗产名录，成为中华文化走向世界的重要名片。我们致力于通过现代方式传承这一珍贵文化，让更多年轻人了解、喜爱龙狮文化。
+                        </p>
+                        <div class="flex space-x-4">
+                            <div class="bg-gray-100 rounded-lg p-4 flex-1">
+                                <div class="text-3xl font-bold text-red-800 mb-1">2000+</div>
+                                <p class="text-gray-600">年历史传承</p>
+                            </div>
+                            <div class="bg-gray-100 rounded-lg p-4 flex-1">
+                                <div class="text-3xl font-bold text-red-800 mb-1">50+</div>
+                                <p class="text-gray-600">种表演形式</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <img src="./images/y2.jpg" alt="传统龙狮表演" class="rounded-lg shadow-md w-full h-auto object-cover">
+                        <img src="./images/y3.jpg" alt="龙狮文化展示" class="rounded-lg shadow-md w-full h-auto object-cover mt-8">
+                    </div>
+                </div>
+
+                <!-- 文化数据可视化 -->
+                <div class="bg-gray-50 rounded-xl p-6 md:p-8">
+                    <h3 class="text-2xl font-bold mb-6 text-center">龙狮文化传播数据</h3>
+                    <div class="h-80">
+                        <canvas id="cultureChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 周边商城完整列表 -->
+        <section id="shop" class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">龙狮周边商城</h2>
+                
+                <!-- 筛选栏 -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-8">
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <div class="flex items-center">
+                            <span class="mr-2 font-medium">分类:</span>
+                            <select class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-800">
+                                <option value="all">全部商品</option>
+                                <option value="figure">手办摆件</option>
+                                <option value="clothes">服饰周边</option>
+                                <option value="stationery">文创文具</option>
+                                <option value="handmade">手工制品</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="mr-2 font-medium">价格:</span>
+                            <select class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-800">
+                                <option value="all">全部价格</option>
+                                <option value="0-100">0-100元</option>
+                                <option value="100-200">100-200元</option>
+                                <option value="200+">200元以上</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center ml-auto">
+                            <span class="mr-2 font-medium">排序:</span>
+                            <select class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-800">
+                                <option value="sales">销量优先</option>
+                                <option value="price-asc">价格从低到高</option>
+                                <option value="price-desc">价格从高到低</option>
+                                <option value="new">新品优先</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 商品列表 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- 商品1 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q5.png" alt="“恭喜发财”龙狮送福台历" class="w-full h-60 object-cover">
+                            <span class="badge-hot">热销</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">“恭喜发财”龙狮送福台历</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">5.0 (128评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥25.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="1" data-name="非遗龙狮手办礼盒" data-price="198" data-img="https://picsum.photos/id/1/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品2 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q6.png" alt="龙狮白瓷品茗杯 (单杯)" class="w-full h-60 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">龙狮白瓷品茗杯 (单杯)</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-half-o"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">4.5 (96评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥35.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="2" data-name="龙狮文化创意T恤" data-price="89" data-img="https://picsum.photos/id/2/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品3 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q7.png" alt="龙狮生肖毛绒站姿玩偶" class="w-full h-60 object-cover">
+                            <span class="badge-hot">新品</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">龙狮生肖毛绒站姿玩偶</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">5.0 (78评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥128.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="3" data-name="金属龙狮书签套装" data-price="69" data-img="https://picsum.photos/id/3/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品4 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q8.png" alt="龙狮系列盲盒/手办展示盒装" class="w-full h-60 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">龙狮系列盲盒/手办展示盒装</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-o"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">4.0 (65评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥98.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="4" data-name="手工龙狮定制灯笼" data-price="128" data-img="https://picsum.photos/id/4/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品5 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q9.png" alt="龙狮帆布包" class="w-full h-60 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">龙狮主题帆布包</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-half-o"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">4.5 (82评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥79.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="5" data-name="龙狮主题帆布包" data-price="79" data-img="https://picsum.photos/id/5/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品6 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q10.png" alt="龙狮金丝绣花挂锦 (长款)" class="w-full h-60 object-cover">
+                            <span class="badge-hot">特惠</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">龙狮金丝绣花挂锦 (长款)</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">5.0 (105评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥158.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="6" data-name="龙狮徽章纪念套装" data-price="49" data-img="https://picsum.photos/id/6/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品7 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q11.png" alt="龙狮舞动·国潮全包防摔手机壳" class="w-full h-60 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">龙狮舞动·国潮全包防摔手机壳</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-o"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">4.0 (58评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥28.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="7" data-name="龙狮纹陶瓷茶具" data-price="258" data-img="https://picsum.photos/id/7/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品8 -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                        <div class="relative">
+                            <img src="./images/q12.png" alt="龙狮随行·极简白陶瓷感保温杯" class="w-full h-60 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2">龙狮随行·极简白陶瓷感保温杯</h3>
+                            <div class="flex items-center mb-3">
+                                <div class="text-amber-500 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-half-o"></i>
+                                    <i class="fa fa-star-o"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">3.5 (42评价)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-red-800 font-bold text-xl">¥128.00</span>
+                                <button class="add-to-cart btn-primary py-1 px-4" data-id="8" data-name="龙狮主题艺术挂画" data-price="168" data-img="https://picsum.photos/id/8/400/300">
+                                    <i class="fa fa-shopping-cart mr-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分页 -->
+                <div class="flex justify-center mt-12">
+                    <div class="flex space-x-2">
+                        <button class="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-red-800 hover:text-white hover:border-red-800 transition-colors">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+                        <button class="w-10 h-10 rounded-lg bg-red-800 text-white flex items-center justify-center">1</button>
+                        <button class="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-red-800 hover:text-white hover:border-red-800 transition-colors">2</button>
+                        <button class="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-red-800 hover:text-white hover:border-red-800 transition-colors">3</button>
+                        <button class="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-red-800 hover:text-white hover:border-red-800 transition-colors">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 关于我们 -->
+        <section id="about" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">关于我们</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <img src="./images/y1.jpg" alt="团队风采" class="rounded-xl shadow-lg w-full h-auto object-cover">
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4 text-red-800">匠心龙狮团队</h3>
+                        <p class="text-lg mb-4 text-gray-700">
+                            我们是以上海杉达学院为核心的青年非遗传承团队，由工程学院学生组成，致力于龙狮非遗文化的传承与创新。
+                        </p>
+                        <p class="text-lg mb-6 text-gray-700">
+                            团队累计获得市级及国家级赛事奖项13项，其中在中国龙狮公开赛中荣获全国银奖，实现国家级赛事突破。我们不仅专注于龙狮表演技艺的提升，更致力于通过文创产品、文化推广等方式，让传统龙狮文化走进现代生活。
+                        </p>
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-gray-100 rounded-lg p-4">
+                                <div class="text-2xl font-bold text-red-800 mb-1">13+</div>
+                                <p class="text-gray-600">赛事奖项</p>
+                            </div>
+                            <div class="bg-gray-100 rounded-lg p-4">
+                                <div class="text-2xl font-bold text-red-800 mb-1">100+</div>
+                                <p class="text-gray-600">演出场次</p>
+                            </div>
+                            <div class="bg-gray-100 rounded-lg p-4">
+                                <div class="text-2xl font-bold text-red-800 mb-1">5000+</div>
+                                <p class="text-gray-600">文化受众</p>
+                            </div>
+                            <div class="bg-gray-100 rounded-lg p-4">
+                                <div class="text-2xl font-bold text-red-800 mb-1">20+</div>
+                                <p class="text-gray-600">文创产品</p>
+                            </div>
+                        </div>
+                        <a href="#contact" class="btn-primary">
+                            <i class="fa fa-handshake-o mr-2"></i>合作洽谈
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 联系合作 -->
+        <section id="contact" class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">联系我们 · 合作洽谈</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 联系表单 -->
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8">
+                        <h3 class="text-2xl font-bold mb-6 text-red-800">合作咨询</h3>
+                        <form>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 font-medium mb-2" for="name">
+                                    姓名
+                                </label>
+                                <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-800" type="text" id="name" placeholder="请输入您的姓名">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 font-medium mb-2" for="phone">
+                                    联系电话
+                                </label>
+                                <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-800" type="tel" id="phone" placeholder="请输入您的联系电话">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 font-medium mb-2" for="email">
+                                    电子邮箱
+                                </label>
+                                <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-800" type="email" id="email" placeholder="请输入您的电子邮箱">
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-gray-700 font-medium mb-2" for="message">
+                                    合作需求
+                                </label>
+                                <textarea class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-800 h-32" id="message" placeholder="请详细描述您的合作需求..."></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary w-full">
+                                <i class="fa fa-paper-plane mr-2"></i>提交申请
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- 联系方式 -->
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8">
+                        <h3 class="text-2xl font-bold mb-6 text-red-800">联系方式</h3>
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fa fa-phone text-xl text-red-800"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-1">联系电话</h4>
+                                    <p class="text-gray-700">15137111094 (王老师)</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fa fa-envelope text-xl text-red-800"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-1">电子邮箱</h4>
+                                    <p class="text-gray-700">jiangxinlongshi@163.com</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fa fa-map-marker text-xl text-red-800"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-1">地址</h4>
+                                    <p class="text-gray-700">上海市浦东新区金海路2727号上海杉达学院</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fa fa-weixin text-xl text-red-800"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-1">微信公众号</h4>
+                                    <div class="bg-gray-100 p-4 inline-block rounded-lg">
+                                        <p class="text-gray-700">杉之工程</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 二维码 -->
+                        <div class="mt-8">
+                            <h4 class="font-bold text-lg mb-3">扫码关注</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-100 rounded-lg p-4 text-center">
+                                    <div class="w-32 h-32 bg-white mx-auto mb-2 flex items-center justify-center">
+                                        <img src="./images/qcode.jpg" alt="">
+                                    </div>
+                                    <p class="text-sm text-gray-600">杉之工程</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-red-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <!-- 品牌信息 -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fa fa-dragon text-2xl text-amber-500"></i>
+                        <span class="text-xl font-bold">匠心龙狮</span>
+                    </div>
+                    <p class="text-white/80 mb-4">
+                        以青春之力传承非遗，以创新之态焕发龙狮文化新活力
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white/80 hover:text-amber-500 transition-colors">
+                            <i class="fa fa-weibo text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/80 hover:text-amber-500 transition-colors">
+                            <i class="fa fa-weixin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/80 hover:text-amber-500 transition-colors">
+                            <i class="fa fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/80 hover:text-amber-500 transition-colors">
+                            <i class="fa fa-youtube-play text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 快速链接 -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-white/80 hover:text-amber-500 transition-colors">首页</a></li>
+                        <li><a href="#culture" class="text-white/80 hover:text-amber-500 transition-colors">龙狮文化</a></li>
+                        <li><a href="#shop" class="text-white/80 hover:text-amber-500 transition-colors">周边商城</a></li>
+                        <li><a href="#about" class="text-white/80 hover:text-amber-500 transition-colors">关于我们</a></li>
+                        <li><a href="#contact" class="text-white/80 hover:text-amber-500 transition-colors">联系合作</a></li>
+                    </ul>
+                </div>
+
+                <!-- 商城服务 -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">商城服务</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-white/80 hover:text-amber-500 transition-colors">购物指南</a></li>
+                        <li><a href="#" class="text-white/80 hover:text-amber-500 transition-colors">支付方式</a></li>
+                        <li><a href="#" class="text-white/80 hover:text-amber-500 transition-colors">配送说明</a></li>
+                        <li><a href="#" class="text-white/80 hover:text-amber-500 transition-colors">售后服务</a></li>
+                        <li><a href="#" class="text-white/80 hover:text-amber-500 transition-colors">常见问题</a></li>
+                    </ul>
+                </div>
+
+                <!-- 订阅 -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">订阅最新资讯</h4>
+                    <p class="text-white/80 mb-4">
+                        订阅我们的新闻资讯，了解龙狮文化最新动态和周边新品
+                    </p>
+                    <div class="flex">
+                        <input type="email" placeholder="您的电子邮箱" class="flex-1 px-4 py-2 rounded-l-lg focus:outline-none text-gray-800">
+                        <button class="bg-amber-500 hover:bg-amber-600 px-4 py-2 rounded-r-lg transition-colors">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-white/20 pt-8 text-center text-white/60">
+                <p>© 2025 匠心龙狮 版权所有</p>
+                <p class="mt-2">国家级非物质文化遗产龙狮文化传承与创新项目</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 购物车数据
+        let cart = [];
+
+        // DOM加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 移动端菜单切换
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // 购物车相关
+            const cartBtn = document.getElementById('cartBtn');
+            const cartSidebar = document.getElementById('cartSidebar');
+            const closeCartBtn = document.getElementById('closeCartBtn');
+            const overlay = document.getElementById('overlay');
+            const cartItems = document.getElementById('cartItems');
+            const emptyCart = document.getElementById('emptyCart');
+            const cartList = document.getElementById('cartList');
+            const cartCount = document.getElementById('cartCount');
+            const cartTotal = document.getElementById('cartTotal');
+
+            // 打开购物车
+            window.openCart = function() {
+                cartSidebar.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                updateCartUI();
+            };
+
+            // 关闭购物车
+            window.closeCart = function() {
+                cartSidebar.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            };
+
+            cartBtn.addEventListener('click', openCart);
+            closeCartBtn.addEventListener('click', closeCart);
+
+            // 添加到购物车
+            const addToCartBtns = document.querySelectorAll('.add-to-cart');
+            addToCartBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    const name = this.dataset.name;
+                    const price = parseFloat(this.dataset.price);
+                    const img = this.dataset.img;
+
+                    // 检查商品是否已在购物车
+                    const existingItem = cart.find(item => item.id === id);
+                    if (existingItem) {
+                        existingItem.quantity += 1;
+                    } else {
+                        cart.push({
+                            id: id,
+                            name: name,
+                            price: price,
+                            quantity: 1,
+                            img: img
+                        });
+                    }
+
+                    // 更新购物车UI
+                    updateCartUI();
+                    
+                    // 提示添加成功
+                    alert('商品已加入购物车！');
+                });
+            });
+
+            // 更新购物车UI
+            window.updateCartUI = function() {
+                // 更新购物车数量
+                const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
+                cartCount.textContent = totalQuantity;
+
+                // 更新购物车总价
+                const totalPrice = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+                cartTotal.textContent = `¥${totalPrice.toFixed(2)}`;
+
+                // 显示/隐藏空购物车状态
+                if (cart.length === 0) {
+                    emptyCart.classList.remove('hidden');
+                    cartList.classList.add('hidden');
+                } else {
+                    emptyCart.classList.add('hidden');
+                    cartList.classList.remove('hidden');
+                    
+                    // 清空购物车列表
+                    cartList.innerHTML = '';
+                    
+                    // 渲染购物车商品
+                    cart.forEach(item => {
+                        const cartItem = document.createElement('div');
+                        cartItem.className = 'flex border-b pb-4';
+                        cartItem.innerHTML = `
+                            <img src="${item.img}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg mr-4">
+                            <div class="flex-1">
+                                <h4 class="font-medium mb-1">${item.name}</h4>
+                                <p class="text-red-800 font-bold mb-2">¥${item.price.toFixed(2)}</p>
+                                <div class="flex items-center">
+                                    <button class="w-6 h-6 border border-gray-300 flex items-center justify-center rounded minus-btn" data-id="${item.id}">-</button>
+                                    <span class="mx-2">${item.quantity}</span>
+                                    <button class="w-6 h-6 border border-gray-300 flex items-center justify-center rounded plus-btn" data-id="${item.id}">+</button>
+                                    <button class="ml-auto text-red-600 delete-btn" data-id="${item.id}">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        cartList.appendChild(cartItem);
+                    });
+
+                    // 绑定购物车商品操作事件
+                    bindCartItemEvents();
+                }
+            };
+
+            // 绑定购物车商品操作事件
+            function bindCartItemEvents() {
+                // 数量减
+                document.querySelectorAll('.minus-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        const item = cart.find(item => item.id === id);
+                        if (item.quantity > 1) {
+                            item.quantity -= 1;
+                        } else {
+                            cart = cart.filter(item => item.id !== id);
+                        }
+                        updateCartUI();
+                    });
+                });
+
+                // 数量加
+                document.querySelectorAll('.plus-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        const item = cart.find(item => item.id === id);
+                        item.quantity += 1;
+                        updateCartUI();
+                    });
+                });
+
+                // 删除商品
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        cart = cart.filter(item => item.id !== id);
+                        updateCartUI();
+                    });
+                });
+            }
+
+            // 初始化文化传播数据图表
+            const ctx = document.getElementById('cultureChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['2021', '2022', '2023', '2024', '2025'],
+                    datasets: [
+                        {
+                            label: '文化推广活动场次',
+                            data: [12, 18, 25, 38, 50],
+                            backgroundColor: 'rgba(153, 27, 27, 0.7)',
+                            borderColor: 'rgba(153, 27, 27, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: '文创产品销售额(万元)',
+                            data: [5, 12, 20, 35, 58],
+                            backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                            borderColor: 'rgba(245, 158, 11, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                        // 关闭移动端菜单
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
